@@ -9,6 +9,9 @@
         margin: 0;
         padding: 0;
       }
+      .hide{
+        display: none;
+      }
     </style>
   </head>
   <body id="gallery">
@@ -31,25 +34,30 @@
         var indiceImg = dados[2].split("=");
 
         var imagem = $('<img>');
-        imagem.attr('src', img[1]);
+        imagem.attr('src', img[1]).addClass('hide');
         imagem.attr('onclick', 'galleryClose("' + prd[1] + '", "' + indiceImg[1] + '")');
 
         $('#gallery').html(imagem);
 
-        var wid = $(window).width();
-        var hei = $(window).height();
+        window.setTimeout(function(){
+          var wid = $(window).width();
+          var hei = $(window).height();
 
-        var wid_img = parseInt($('#gallery img').css('width'));
-        var hei_img = parseInt($('#gallery img').css('height'));
+          var wid_img = parseInt($('#gallery img').css('width'));
+          var hei_img = parseInt($('#gallery img').css('height'));
 
-        // caso a imagem esteja em
-        if(wid_img > wid)
-          $('#gallery img').css({'width': wid + 'px'});
+          // caso a imagem esteja em
+          if(wid_img > wid)
+            $('#gallery img').css({'width': wid + 'px'});
 
-        else if(hei_img > hei)
-          $('#gallery img').css({'height': hei + 'px'});
+          else if(hei_img > hei)
+            $('#gallery img').css({'height': hei + 'px'});
 
-        var myScroll = new iScroll('gallery', {zoom: true});
+          $('#gallery img').show();
+
+          var myScroll = new iScroll('gallery', {zoom: true});
+        }, 200);
+
       });
     </script>
   </body>
