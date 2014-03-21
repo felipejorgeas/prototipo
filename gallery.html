@@ -39,8 +39,8 @@
         var wid = $(window).width();
         var hei = $(window).height();
 
-        var wid_img = $('#gallery img').width();
-        var hei_img = $('#gallery img').height();
+        var wid_img = parseInt($('#gallery img').css('width'));
+        var hei_img = parseInt($('#gallery img').css('height'));
 
         // caso a imagem esteja em
         if(wid_img > wid)
