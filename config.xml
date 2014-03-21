@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="br.com.eacsoftware.saciorcamentoapp" version="0.4" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>SACI Orçamento</name>
+    <description>
+        Aplicativo para auxiliar na criação de orçamentos no SACI.
+    </description>
+    <author email="felipe.jorge@eacsoftware.com.br" href="http://eacsoftware.com.br">
+        Felipe Jorge - EAC Software
+    </author>
+    <access origin="*" />
+    <preference name="fullscreen" value="true" />
+    <feature name="http://api.phonegap.com/1.0/device" />
+    <gap:plugin name="com.phonegap.plugins.barcodescanner" />
+    <icon src="img/icon.png" />
+    <gap:splash src="img/splashscreen.jpg" gap:platform="android" />
+    <preference name="splash-screen-duration" value="6000"/>
+</widget>

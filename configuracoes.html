@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Orçamento BelLar</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- toast -->
+    <div id="toast"></div>
+
+    <!-- popup -->
+    <div id="modal">
+      <h1></h1>
+      <p></p>
+      <input class="hide bradius" type="text" name="generic" value="" />
+      <div id="botoes">
+        <button id="btcancel" type="button" class="bt bradius mask_red">Cancelar</button>
+        <button id="btok" type="button" class="bt bradius mask_gray">Ok</button>
+      </div>
+    </div>
+
+    <div id="geral">
+      <!-- topo fixo da aplicacao -->
+      <div id="topo">
+        <img src="img/logo_cliente.png" />
+        <div id="busca">
+          <strong>Configurações</strong>
+        </div>
+      </div>
+
+      <div id="conteudo">
+        <div id="configs">
+          <strong>Servidor</strong>
+          <ul>
+            <li id="configServerUrl" class="custom_input">
+              <label>URL do Servidor</label>
+              <input type="hidden" name="configServerUrl" value="" />
+            </li>
+            <li id="configServerWait" class="custom_input hide">
+              <label>Tempo de espera das requisições (em segundos)</label>
+              <input type="hidden" name="configServerWait" value="" />
+            </li>
+          </ul>
+          <strong class="hide">Orçamento</strong>
+          <ul>
+            <li id="configOrderSendMail" class="custom_checkbox hide">
+              <label>Enviar orçamento por email</label>
+              <input type="hidden" name="configOrderSendMail" value="" />
+            </li>
+            <li id="configHistQtde" class="custom_input hide">
+              <label>Quantidade de registros no histórico</label>
+              <input type="hidden" name="configHistQtde" value="" />
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- rodape fixo da aplicacao -->
+      <div id="rodape">
+        <a class="txt_right show_menu" href="javascript:void(0);" onclick="goToPage('index.html');">
+          <img src="img/ico_back.png" />
+        </a>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="js/libs/jquery-1.9.0/jquery.min.js"></script>
+    <script type="text/javascript" src="js/functions.js"></script>
+    <script type="text/javascript">
+      function setInputCustom(config) {
+        var value = $('#modal input').val();
+        $('input[name=' + config + ']').val(value);
+        setConfigs(config, value);
+        hideDialog();
+      }
+
+      $(function() {
+        $('.custom_checkbox').click(function() {
+          var config = $(this).attr('id');
+          var value = "";
+          if ($(this).hasClass('checkboxoff')){
+            $(this).attr('class', 'checkboxon');
+            value = "1";
+          }else{
+            $(this).attr('class', 'checkboxoff');
+            value = "0";
+          }
+          $('input[name=' + config + ']').val(value);
+          setConfigs(config, value);
+        });
+
+        $('.custom_input').click(function() {
+          var config = $(this).attr('id');
+          showDialog("Configuração", "", "Cancelar", "hideDialog()", "Ok", "setInputCustom('" + config + "')", 1);
+          var msg = $('#' + config + " label").html();
+          var value = $('input[name=' + config + ']').val();
+          $('#modal p').html(msg + ':');
+          $('#modal input').val(value);
+        });
+
+        verificaConfiguracoes();
+      });
+    </script>
+  </body>
+</html>

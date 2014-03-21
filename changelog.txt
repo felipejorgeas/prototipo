@@ -1,0 +1,39 @@
+## SACI Orçamento - cliente
+#
+# Aplicativo auxiliar na criação de orçamentos no ERP SACI.
+#
+## Autor: Felipe Jorge - EAC Software
+
+
+# v0.4 - 28/03/2014
+
+- Melhoria na tecnologia de comunição entre aplicativo e servidor.
+
+
+# v0.3 - 20/03/2014
+
+- A partir desta versão, quando habilitado o envio de orçamentos por e-mail é exibida uma mensagem se não existir um e-mail configurado para o funcionário.
+
+- Adicionado a unidade do produto ao final do nome.
+
+- Melhoria na galeria de imagens para evitar a perda de qualidade das imagens em alta resolução ao dar o zoom.
+
+- Adicionado changelog das versões.
+
+
+# v0.2 - 26/02/2014
+
+- Melhoria na galeria de imagens para permitir 'zoom pinça' nas imagens expandidas.
+
+- Adicionado o envio de orçamentos em PDF para o e-mail do vendedor, tanto ao finalizar um orçamento quanto pela tela de histórico. Deve ser previamente habilitado nas configurações.
+
+- Ajustes no layout da tela de histórico de orçamentos.
+
+- Adicionado o nome do cliente no histórico de orçamentos.
+
+- Adicionado o código do usuário nos orçamentos gerados.
+
+
+# v0.1 - 20/02/2014
+
+- Versão inicial do aplicativo.

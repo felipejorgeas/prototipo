@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Orçamento BelLar</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- toast -->
+    <div id="toast"></div>
+
+    <!-- popup -->
+    <div id="modal">
+      <h1></h1>
+      <p></p>
+      <input class="hide bradius" type="text" name="generic" value="" />
+      <div id="botoes">
+        <button id="btcancel" type="button" class="bt bradius mask_red">Cancelar</button>
+        <button id="btok" type="button" class="bt bradius mask_gray">Ok</button>
+      </div>
+    </div>
+
+    <div id="geral">
+      <!-- topo fixo da aplicacao -->
+      <div id="topo">
+        <img src="img/logo_cliente.png" />
+        <div id="busca">
+          <strong>Orçamento</strong>
+        </div>
+      </div>
+
+      <div id="conteudo">
+        <div id="conteudo_cli">
+          <button type="button" id="cliente" class="bt" onclick="exibeDialogCliente();">CLIENTE</button>
+        </div>
+        <div id="back_msg">
+          <img src='img/logo_alert.png' alt='lupa'/>
+          <p>Não há produtos!</p>
+        </div>
+      </div>
+
+      <!-- rodape fixo da aplicacao -->
+      <div id="rodape">
+        <button type="button" class="bt bradius mask_gray hide" onclick="saveOrcamento();">Finalizar</button>
+        <button type="button" class="bt bradius mask_red hide" onclick="exibeDialogDelOrcamento();">Limpar</button>
+        <a class="txt_right show_menu" href="javascript:void(0);" onclick="goToPage('index.html');">
+          <img src="img/ico_back.png" />
+        </a>
+      </div>
+    </div>
+
+    <!-- javascripts necessarios para o funcionamento desta pagina -->
+    <script type="text/javascript" src="js/libs/jquery-1.9.0/jquery.min.js"></script>
+    <script type="text/javascript" src="js/functions.js"></script>
+
+    <script type="text/javascript">
+      /* variaveis globais */
+      var cod_orcamento = 0;
+      var codigo_rm = null;
+      var grade_rm = null;
+      var loja_rm = null;
+      var reg_rm = null;
+
+      function exibeDialogCliente() {
+        showDialog("Cliente", "Informe o nome do cliente:", "Cancelar", "hideDialog()", "Ok", "setCliente()", 1);
+        var cliente = $('#conteudo #cliente').html();
+        cliente = cliente.replace("CLIENTE", "");
+        $('#modal input').val(cliente);
+      }
+      function setCliente() {
+        var cliente = $('#modal input').val();
+        cliente = cliente.trim();
+        cliente = cliente.toUpperCase();
+        if (cliente.length == 0) {
+          cliente = "CLIENTE";
+          localStorage.setItem('cliente', "");
+        }
+        else{
+          localStorage.setItem('cliente', cliente);
+        }
+        hideDialog();
+        $('#conteudo #cliente').html(cliente);
+        toast("Cliente atualizado com sucesso");
+      }
+      function getCliente() {
+        var cliente = localStorage.getItem('cliente');
+        if (cliente == null || !(cliente.length > 0)) {
+          cliente = "CLIENTE";
+        }
+        $('#conteudo #cliente').html(cliente.trim());
+        $('#modal input').css({'text-transform': 'uppercase'});
+      }
+      function clearStorageOrcamento() {
+        localStorage.removeItem('orcamento');
+      }
+      function loadStorageOrcamento() {
+        /* obtem o json com a lista de produtos do orcamento atual */
+        var produtoList = JSON.parse(localStorage.getItem('orcamento'));
+        if(produtoList == null){
+          //showMsg("Não há produtos no orçamento atual", "error", "vazio");
+        } else {
+          /* obtem o json com a lista de ambientes */
+          var ambientes = JSON.parse(sessionStorage.getItem('amb'));
+
+          var ul = $('<ul>');
+          $(ul).addClass('list');
+
+          /* percorre a lista de produtos do orcamento atual para exibir na tela */
+          $.each(produtoList, function(i, prd) {
+            /* obtem o nome do ambiente */
+            var nomeAmbiente = "";
+            $.each(ambientes, function(j, amb) {
+              var id = amb.codigo;
+              var nome = amb.nome;
+              if(id == prd.ambiente)
+                nomeAmbiente = nome;
+            });
+
+            /* obtem uma das imagem do produto */
+            var imagem = $('<img>');
+            imagem.attr('src', 'img/logo_nophoto.jpg');
+            var imgOk = false;
+            if (prd.img.length > 0) {
+              $.each(prd.img, function(h, img) {
+                var link = img.arquivo;
+                /* acessando a miniatura da imagem no servidor */
+                var file = link.split('.');
+                var extensao = file[file.length-1];
+                link = link.replace('.'+extensao, '_min.'+extensao);
+                imagem.attr('src', link);
+                /* apos obter uma das imagens sai do loop */
+                return false;
+              });
+            }
+
+            /* gera um hash para identificar este item na lista de produtos */
+            var hash = new Date().getTime();
+
+            var button_x = $('<button>');
+            button_x.addClass('bt btshort bradius mask_red');
+            button_x.attr('type', 'button');
+            button_x.attr('onclick', 'exibeDialogrmProduto("' + prd.codigo + '", "' + prd.grade + '", "' + prd.loja + '", "' + hash + '");');
+            button_x.html('X');
+
+            var strong_produto = $('<strong>');
+            strong_produto.addClass('produto').html(prd.descricao.substr(0, 45));
+
+            var span_codigo = $('<span>');
+            span_codigo.html('Cód.: ' + prd.codigo);
+
+            var span_grade = $('<span>');
+            span_grade.html('Grade: ' + prd.grade);
+
+            var span_loja = $('<span>');
+            span_loja.html('Loja: ' + prd.loja);
+
+            var span_quantidade = $('<span>');
+            span_quantidade.html('Qtde: ' + prd.quantidade);
+
+            var span_ambiente = $('<span>');
+            span_ambiente.html('Ambiente: ' + nomeAmbiente);
+
+            /* monta a linha com as informacoes do produto */
+            var li = $('<li>');
+            li.attr('id', hash);
+            li.append(button_x);
+            li.append(imagem);
+            li.append(strong_produto);
+            li.append(span_codigo);
+            li.append(span_grade);
+            li.append(span_loja);
+            li.append(span_quantidade);
+            li.append(span_ambiente);
+
+            /* adiciona a linha a lista de itens exibidos na tela */
+            $(ul).append(li);
+          });
+          $('#back_msg').hide();
+          $('#conteudo').append(ul);
+          $(".hide").show();
+        }
+      }
+      function saveHist(codigo, data, update, cliente) {
+        var codigo_usuario = getUsuarioCodigo();
+
+        var acao = 'Inserido';
+        if(update)
+          acao = 'Atualizado';
+
+        /* acessa o hitorico do usuario logado */
+        var historico = JSON.parse(localStorage.getItem('historico_usuario_' + codigo_usuario));
+        var upHistorico = historico;
+
+        var newOrcamento = {
+          'codigo': codigo,
+          'data': data,
+          'acao': acao,
+          'cliente': cliente
+        };
+
+        if(historico == null)
+          upHistorico = [];
+        else{
+          /* armazena a quantidade de registros que excedem o limite definido nas configurações */
+          var histExcedido = historico.length - configHistQtde;
+
+          $.each(historico, function(i, orcamento) {
+            /* remove os registros mais antigos de acordo com a quantidade excedida.
+             * verifica se eh maior, e também se eh igual, pois se for igual tera que remover um registro
+             * para inserir o orcamento atual */
+            if(histExcedido >= 0){
+              upHistorico.shift();
+              histExcedido -= 1;
+            }
+          });
+        }
+
+        /* adiciona o novo registro no historico atualizado */
+        upHistorico.push(newOrcamento);
+
+        /* armazena o historico atualizado */
+        localStorage.setItem('historico_usuario_' + codigo_usuario, JSON.stringify(upHistorico));
+      }
+      function saveOrcamento() {
+        showDialog("Finalizar", "Deseja concluir ou atualizar um orçamento existente?", "Concluir", "wsSaveOrcamento()", "Atualizar", "exibeDialogOrcametoUpdate()");
+      }
+      function exibeDialogOrcametoUpdate() {
+        showDialog("Atualizar", "Informe o orçamento a ser atualizado:", "Cancelar", "hideDialog()", "Ok", "wsSaveOrcamentoUpdate()", 1);
+      }
+      function wsSaveOrcamentoUpdate() {
+        var num = $('#modal input').val();
+        cod_orcamento = new Number(num);
+        if (!(cod_orcamento > 0)) {
+          cod_orcamento = 0;
+          showDialog("Atualizar", "É necessário informar um orçamento válido!", "Cancelar", "hideDialog()", "Ok", "exibeDialogOrcametoUpdate()");
+        } else {
+          wsSaveOrcamento();
+        }
+      }
+      function wsSaveOrcamento() {
+        var orcamento = [];
+
+        /* obtem a lista de produtos do orcamento atual */
+        var produtoList = JSON.parse(localStorage.getItem('orcamento'));
+
+        if (produtoList == null) {
+          //showMsg("Não há produtos no orçamento atual", "error", "index.html");
+        } else {
+          /* obtem o cliente */
+          var cliente = localStorage.getItem('cliente');
+          var funcionario = getUsuarioCodigo();
+          var usuario = getUsuarioUsuario();
+
+          orcamento = {
+            'codigo': cod_orcamento,
+            'funcionario': funcionario,
+            'usuario': usuario,
+            'cliente': cliente,
+            'produtos': []
+          };
+
+          $.each(produtoList, function(i, prd) {
+            orcamento.produtos[i] = {
+              'codigo_produto': prd.codigo,
+              'grade_produto': prd.grade,
+              'quantidade': prd.quantidade * 1000,
+              'loja': prd.loja,
+              'ambiente': prd.ambiente
+            };
+          });
+        }
+        showLoading();
+        $.ajax({
+          url: configServerUrl + '/saveOrcamento.php',
+          type: "POST",
+          dataType: "jsonp",
+          data: {
+            'dados': { 'wscallback': 'wsResponseSaveOrcamento',
+                        'orcamento': orcamento
+                      }
+          }
+        });
+      }
+      function wsResponseSaveOrcamento(response) {
+        hideDialog();
+        hideMask();
+
+        /* faz o parser do json */
+        response = JSON.parse(response);
+
+        /* em caso de erro */
+        if (response.wsstatus == 0) {
+          var msg = 'Não foi possível inserir ou atualizar o orçamento no SACI!';
+          var error = response.wserror;
+          if (error.length > 0)
+            msg = error;
+
+          showDialog("Erro", msg, null, null, "Fechar", "hideDialog()");
+        }
+        else {
+          /* obtem as informacoes do orcamento que veio no retorno */
+          var orcamento = response.wsresult;
+
+          /* armazena o cod. do orcamento gerado/atualizado */
+          cod_orcamento = orcamento.codigo;
+
+          /* grava o historico de orcamentos  do usuario */
+          saveHist(orcamento.codigo, orcamento.data, orcamento.update, orcamento.cliente);
+
+          $('.list').hide();
+          $('.hide').hide();
+          $('#back_msg').show();
+
+          if (orcamento.update)
+            toast("Orçamento <strong>" + orcamento.codigo + "</strong> atualizado no SACI");
+          else
+            toast("Orçamento <strong>" + orcamento.codigo + "</strong> incluído no SACI");
+
+          /* reseta o nome do cliente */
+          $('#conteudo #cliente').html("CLIENTE");
+          localStorage.setItem('cliente', $('#conteudo #cliente').html());
+
+          /* exclui o orcamento da memoria */
+          clearStorageOrcamento();
+
+          /* verifica se esta configurado para enviar orcamentos por email */
+          if (configOrderSendMail == 1)
+            exibeDialogSendEmailOrcameto(orcamento.codigo);
+        }
+      }
+      function exibeDialogDelOrcamento() {
+        showDialog("Orçamento", "Deseja excluir o orçamento atual?", "Não", "hideDialog()", "Sim", "delOrcamento()");
+      }
+      function delOrcamento() {
+        clearStorageOrcamento();
+        $('.list').hide();
+        $('.hide').hide();
+        $('#back_msg').show();
+        hideDialog();
+        toast("Orçamento excluído com sucesso");
+      }
+      function exibeDialogrmProduto(codigo, grade, loja, reg) {
+        codigo_rm = codigo;
+        grade_rm = grade;
+        loja_rm = loja;
+        reg_rm = reg;
+        showDialog("Produto", "Deseja excluir este produto do orçamento atual?", "Não", "hideDialog()", "Sim", "rmProduto()");
+      }
+      function rmProduto() {
+        /* obtem a lista de produtos do orcamento atual */
+        var produtoList = JSON.parse(localStorage.getItem('orcamento'));
+
+        if (produtoList == null) {
+          //showMsg("Não há produtos no orçamento atual", "error", "index.html");
+        }else{
+          var upProdutoList = produtoList;
+
+          /* percorre a lista de produtos do orcamento atual */
+          $.each(produtoList, function(i, prd) {
+            if(prd){
+              /* remove o item do orcamento atual */
+              if (prd.codigo == codigo_rm && prd.grade == grade_rm && prd.loja == loja_rm)
+                upProdutoList.splice(i, 1);
+            }
+          });
+
+          /* armazena orcamento atualizado */
+          localStorage.setItem('orcamento', JSON.stringify(upProdutoList));
+
+          hideDialog();
+          $('.list').find('#' + reg_rm).slideUp();
+          toast("Produto excluído com sucesso");
+
+          /* verifica se o orcamento esta vazio */
+          if(upProdutoList.length == 0) {
+            window.setTimeout(function() {
+              delOrcamento();
+            }, 300);
+          }
+        }
+      }
+      $(function() {
+        $("#login input").keypress(function(e) {
+          var tecla = (e.keyCode ? e.keyCode : e.which);
+          if (tecla == 13) {
+            wsLogar();
+          }
+        });
+        loadStorageOrcamento();
+        getCliente();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Orçamento BelLar</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="js/libs/swiper/plugins/scrollbar/idangerous.swiper.css" />
+  </head>
+  <body>
+    <!-- toast -->
+    <div id="toast"></div>
+
+    <!-- changelog -->
+    <div id="changelog" class="bradius"></div>
+
+    <!-- popup -->
+    <div id="modal">
+      <h1></h1>
+      <p></p>
+      <input class="hide bradius" type="text" name="generic" value="" />
+      <div id="botoes">
+        <button id="btcancel" type="button" class="bt bradius mask_red">Cancelar</button>
+        <button id="btok" type="button" class="bt bradius mask_gray">Ok</button>
+      </div>
+    </div>
+
+    <!-- tela de login -->
+    <div id="login" class="bradius">
+      <img src="img/logo_cliente.png" />
+      <input type="text" class="bradius" name="usuario" placeholder="Usuário" value="" />
+      <input type="password" class="bradius" name="senha" placeholder="Senha" value="" />
+      <button type="button" class="bt bradius mask_gray" onclick="wsLogar();">Acessar</button>
+    </div>
+
+    <!-- menu lateral -->
+    <nav id="slide-menu">
+      <div id="usuario" onclick="exibeDialogLogout();">
+        <img src="img/ico_user.png">
+        <div id="info">
+          <strong id="nome"></strong>
+          <p id="email"></p>
+        </div>
+      </div>
+      <div id="ambientes">
+        <strong>
+          Ambientes
+          <a id="reload" class="txt_right" href="javascript:void(0);" onclick="wsGetAmbientes();">
+            <img src="img/reload.gif" />
+          </a>
+        </strong>
+      </div>
+      <div id="botoes">
+        <ul>
+          <li class="clock"><a href="javascript:void(0);" onclick="goToPage('historico.html');" >Histórico</a></li>
+          <li class="settings"><a href="javascript:void(0);" onclick="goToPage('configuracoes.html');" >Configurações</a></li>
+          <li class="close"><a href="javascript:void(0);" onclick="exibeDialogAppClose();" >Fechar</a></li>
+        </ul>
+        <p class="tunderline" onclick="showChangeLog();">SACI Orçamento v0.3 - EAC Software</p>
+      </div>
+    </nav>
+
+    <div id="geral">
+      <!-- topo fixo da aplicacao -->
+      <div id="topo">
+        <img src="img/logo_cliente.png" />
+        <div id="busca">
+          <a href="javascript:void(0);" onclick="barcodeScannerScan();"><img class="bradius" src="img/ico_barcode.png" /></a>
+          <input type="text" class="evEnter bradius" name="codigo" placeholder="Cód. Produto" value="" />
+        </div>
+      </div>
+
+      <!-- conteudo a ser preenchido via javascript ao buscar um novo produto (loadPage) -->
+      <div id="conteudo">
+        <div id="back_msg">
+          <img src='img/logo_lupa.png' alt='logo'/>
+          <p>Busque algum produto!</p>
+        </div>
+      </div>
+
+      <!-- rodape fixo da aplicacao -->
+      <div id="rodape">
+        <button type="button" class="bt bradius mask_gray" onclick="goToPage('orcamento.html');">Orçamento</button>
+        <a id="show_menu" class="txt_right show_menu" href="javascript:void(0);" >
+          <img src="img/ico_menu.png" />
+        </a>
+      </div>
+    </div>
+
+    <!-- javascripts necessarios para o funcionamento desta pagina -->
+    <script type="text/javascript" src="js/libs/jquery-1.9.0/jquery.min.js"></script>
+    <script src="cordova.js"></script>
+    <script src="barcodescanner.js"></script>
+    <script type="text/javascript" src="js/functions.js"></script>
+    <script type="text/javascript" src="js/libs/swiper/plugins/scrollbar/idangerous.swiper-2.1.min.js"></script>
+    <script type="text/javascript" src="js/libs/swiper/plugins/scrollbar/idangerous.swiper.scrollbar-2.3.js"></script>
+    <script type="text/javascript" src="js/libs/fastclick/fastbutton.js"></script>
+
+    <script type="text/javascript">
+        /* variaveis globais */
+        var produto = null;
+        var grd = null;
+        var store = null;
+        var storeno = null;
+        var hash = null;
+        var heigth = null;
+        var initialSlide = 0;
+
+        /**
+         * Funcao utilizada para buscar as informacoes de um determinado produto
+         */
+        function wsGetProduto() {
+          /* busca o conteudo do campo 'codigo' */
+          var num = $('input[name=codigo]').val();
+          var codigo = new Number(num);
+
+          /* verifica se o campo esta preenchido */
+          if (!(codigo > 0)) {
+            showDialog("Aviso", 'Digite um código de produto válido!', null, null, "Fechar", "hideDialog()");
+          }
+          else {
+            showLoading();
+            /* executa o ajax enviando o codigo de barras digitado */
+            $.ajax({
+              url: configServerUrl + '/getProduto.php',
+              type: 'GET',
+              dataType: 'jsonp',
+              data: {
+                'dados': { 'wscallback': 'wsResponseGetProduto',
+                            'produto': { 'codigo': codigo }
+                          }
+              }
+            });
+          }
+        }
+
+        /**
+         * Funcao 'callback' para a execucao da funcao 'wsGetProduto'
+         * @param {json} response
+         */
+        function wsResponseGetProduto(response) {
+          hideDialog();
+          hideMask();
+
+          /* faz o parser do json */
+          response = JSON.parse(response);
+
+          /* verifica se houve erro ou sucesso */
+          if (response.wsstatus == 0) {
+            var msg = 'Produto não encontrado!';
+            var error = response.wserror;
+            if (error.length > 0)
+              msg = error;
+            showDialog("Produto", msg, null, null, "Fechar", "hideDialog()");
+          }
+
+          else {
+            /* carrega o conteudo fixo da pagina
+             * foi necessario sempre recarregar o conteudo da pagina
+             * para evitar problemas com 'lixo' que prejudicam o funcionamento
+             * do javascript */
+            loadPage();
+
+            /* obtem as informacoes do produto que veio no retorno */
+            produto = response.wsresult;
+
+            var topoOk = false;
+            var grade_anterior = "";
+            var estoque = $('<table>');
+
+            if (produto.estoque.length > 0) {
+              /* percorre o array 'estoque' que contem as quantidades disponiveis do produto */
+              $.each(produto.estoque, function(i, stk) {
+                var grade = stk.grade;
+                var qtty = parseInt(stk.qtty) / 1000;
+
+                var loja_cod = stk.codigo_loja;
+                var loja = stk.nome_loja;
+
+                /* monta a lista para exibir as grades e lojas */
+                if (grade_anterior != grade) {
+                  var grd = $('<strong>');
+                  $(grd).addClass("grade");
+                  $(grd).html("Grade: " + grade);
+
+                  /* quando muda de grade adiciona a tabela de estoque na tela */
+                  if (grade_anterior.length > 0) {
+                    $(".list_estoques").append(estoque);
+                    estoque = $('<table>');
+                  }
+
+                  $(".list_estoques").append(grd);
+                  grade_anterior = grade;
+                }
+                else if (!(grade.length > 0) && !topoOk)
+                  topoOk = true;
+
+                var topo = '<tr class="header"><td>Loja</td><td>Qtde.</td><td></td></tr>';
+                $(estoque).append(topo);
+
+                var td_loja = '<td>' + loja_cod + ' - ' + loja + '</td>';
+                var td_qtty = '<td>' + qtty + '</td>';
+                var td_button = "";
+
+                /* obtem a lista de produtos do orcamento atual */
+                var produtoList = JSON.parse(localStorage.getItem('orcamento'));
+                if(produtoList == null)
+                  produtoList = [];
+
+                var existsOk = false;
+
+                /* percorre a lista de produtos do orcamento atual */
+                if(produtoList.length > 0){
+                  $.each(produtoList, function(i, prd) {
+                    /* verifica se o produto ja esta presente no orcamento atual */
+                    if (prd.codigo == produto.codigo && prd.grade == grade && prd.loja == loja)
+                      existsOk = true;
+                  });
+                }
+
+                /* gera um hash para identificar este item na lista de estoques */
+                var hash = new Date().getTime();
+
+                /* insere o botao para quantidade ou apenas informa que o produto ja se encontra no orcamento */
+                if(existsOk)
+                  td_button = '<td id="'+hash+'"><img src="img/ico_ok.png" /></td>';
+                else
+                  td_button = '<td id="'+hash+'"><button type="button" class="bt btshort bradius mask_red" onclick=\'exibeDialogQtty("' + loja_cod + '","' + loja + '","' + grade + '","' + hash + '");\'>+</button></td>';
+
+                var tr = '<tr>' + td_loja + td_qtty + td_button + '</tr>';
+                $(estoque).append(tr);
+              });
+            }
+
+            $(".list_estoques").append(estoque);
+            grade_anterior = 0;
+
+            if (produto.img.length > 0) {
+              /* percorre o array 'img' que contem as imagens do produto */
+              var indiceImg = 0;
+              $.each(produto.img, function(i, img) {
+                var link = img.arquivo;
+                /* cria os elementos utilizados na galeria de fotos */
+                var galeriaSlide = $('<div>');
+                var galeriaSlideA = $('<a>');
+                var galeriaSlideImg = $('<img>');
+
+                /* define alguns atributos necessarios para o funcionamento da galeria */
+                $(galeriaSlideA).attr('href', 'javascript:gallery("' + produto.codigo + '", "' + link + '", "' + indiceImg + '")');
+                $(galeriaSlide).addClass('swiper-slide');
+                $(galeriaSlideImg).addClass('title');
+
+                /* acessando a miniatura da imagem no servidor */
+                var file = link.split('.');
+                var extensao = file[file.length-1];
+                link = link.replace('.'+extensao, '_min.'+extensao);
+
+                /* define a imagem e adiciona na div slide */
+                $(galeriaSlideImg).attr('src', link);
+                $(galeriaSlideA).append(galeriaSlideImg);
+                $(galeriaSlide).append(galeriaSlideA);
+
+                /* adiciona a div slide com a imagem da galeria de fotos */
+                $('.swiper-container1 .swiper-wrapper').append(galeriaSlide);
+
+                indiceImg++;
+              });
+            }
+            else {
+              var link = 'img/logo_nophoto.jpg';
+
+              /* cria os elementos utilizados na galeria de fotos */
+              var galeriaSlide = $('<div>');
+              var galeriaSlideImg = $('<img>');
+
+              /* define alguns atributos necessarios para o funcionamento da galeria */
+              $(galeriaSlide).addClass('swiper-slide');
+              $(galeriaSlideImg).addClass('title');
+
+              /* define a imagem e adiciona na div slide */
+              $(galeriaSlideImg).attr('src', link);
+              $(galeriaSlide).append(galeriaSlideImg);
+
+              /* adiciona a div slide com a imagem da galeria de fotos */
+              $('.swiper-container1 .swiper-wrapper').append(galeriaSlide);
+            }
+
+            $('#conteudo #produto').html(produto.descricao);
+            $('#conteudo #codigo').html(produto.codigo);
+            $('#conteudo #mult').html(produto.multiplicador / 1000);
+
+            /* adiciona a div slide com a imagem da galeria de fotos */
+            $('.swiper-container1 .swiper-wrapper').append(galeriaSlide);
+
+            /* remove o 'focus' do campo 'codigo' */
+            $('input[name=codigo]').blur();
+
+            /* recarrega as funcoes de javascript */
+            loadSwiper();
+            initialSlide = 0;
+            heigth = $('.swiper-container').height();
+            $('.swiper-container').css({ 'height': '200px' });
+          }
+        }
+
+        function exibeDialogQtty(cod_loja, loja, grade, time) {
+          if (cod_loja > 0) {
+            grd = grade;
+            store = loja;
+            storeno = cod_loja;
+            hash = time;
+          }
+          var msg = "";
+          if (grd.length > 0)
+            msg += "<strong>Grade:</strong> " + grd + " ";
+          msg += '<strong>Loja:</strong> ' + store + "</br>Informe a quantidade desejada:";
+          showDialog("Quantidade", msg, "Cancelar", "hideDialog()", "Ok", "verifyMult()", 1);
+        }
+
+        /**
+         * Funcao utilizada para adicionar um produto a lista de orcamento
+         */
+        function addProduto(qtde) {
+          hideDialog();
+
+          /* obtem o json com a lista de produtos do orcamento atual */
+          var produtoList = JSON.parse(localStorage.getItem('orcamento'));
+          if(produtoList == null)
+            produtoList = [];
+
+          /* variavel de controle para verificar se o produto ja esta presente no orcamneto atual */
+          var existsOk = false;
+
+          /* cria um novo bloco com os dados do produto para adicionar ao orcamento atual */
+          var newProduto = {
+            'codigo': produto.codigo,
+            'descricao': produto.descricao,
+            'grade': grd,
+            'quantidade': qtde,
+            'loja': store,
+            'ambiente': sessionStorage.getItem('radioAmb'),
+            'img': []
+          }
+
+          if(produto.img.length > 0){
+            /* adiciona as imagens ao novo bloco */
+            $.each(produto.img, function(i, img) {
+              newProduto.img[i] = { 'arquivo': img.arquivo };
+            });
+          }
+
+          /* percorre a lista de produtos do orcamento atual */
+          if(produtoList.length > 0){
+            $.each(produtoList, function(i, prd) {
+              /* verifica se o produto ja esta presente no orcamento atual */
+              if (prd.codigo == produto.codigo && prd.grade == grd && prd.loja == store)
+                existsOk = true;
+            });
+          }
+
+          /* caso o produto ja esteja presente no orcamento atual exibe um aviso */
+          if (existsOk) {
+            showDialog("Aviso", "Este produto já foi adicionado no orçamento", null, null, "Fechar", "hideDialog()");
+          }
+          else {
+            /* adiciona o produto na lista de produtos */
+            produtoList.push(newProduto);
+
+            /* armazena a lista de produtos atualizada */
+            localStorage.setItem('orcamento', JSON.stringify(produtoList));
+
+            /* marca o produto como inserido na lista de estoques */
+            $(".list_estoques").find('td#'+hash).html('<img src="img/ico_ok.png" />');
+
+            toast("Produto adicionado no orçamento");
+          }
+        }
+
+        /**
+         * Funcao utilizada para verificar a quantidade em ao multiplicador do produto
+         */
+        function verifyMult() {
+          var num = $('#modal input').val() * 1000;
+          var qtde = new Number(num);
+          if (!(qtde > 0)) {
+            showDialog("Quantidade", "É necessário informar uma quantidade válida!", "Cancelar", "hideDialog()", "Ok", "exibeDialogQtty()");
+          }
+          else {
+            //obtem o multiplicador do produto atual
+            var mult = $(produto).find('multiplicador').text();
+
+            var quoe = qtde / mult; //resultado da divisao
+            var rest = qtde % mult; //resto da divisao
+
+            //se a divisao nao for exata, aumenta "1" no resultado
+            if(rest > 0){
+              quoe++;
+              qtde = (Math.floor(quoe) * mult) / 1000;
+              showDialog("Quantidade", "É necessário informar uma quantidade válida!<br/>Para atender a quantidade desejada serão necessários " + qtde + ".", "Cancelar", "exibeDialogQtty()", "Ok", "addProduto('" + qtde + "')");
+            }
+            else{
+              qtde = qtde / 1000;
+              addProduto(qtde);
+            }
+          }
+        }
+
+        function loadPage() {
+
+          $('#conteudo').html(
+            '<div class="device">' +
+              '<div class="swiper-container1">' +
+                '<div class="swiper-wrapper"></div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="info">' +
+              '<div class="tabs">' +
+                '<span href="javascript:void(0);" class="bt bradius active">' +
+                  '<img src="img/bt_mask_aba_active.png"/>Produto' +
+                '</span>' +
+              '</div>' +
+              '<div id="dados">' +
+                '<p id="produto"></p>' +
+                '<table id="prd">' +
+                  '<tr>' +
+                    '<td style="width: 10%;"><strong>Cód.:</strong></td>' +
+                    '<td style="width: 90%;" id="codigo"></td>' +
+                  '</tr>' +
+                  '<tr>' +
+                    '<td style="width: 10%;"><strong>Multi.:</strong></td>' +
+                    '<td style="width: 90%;" id="mult"></td>' +
+                  '</tr>' +
+                '</table>' +
+                '<div class="list_estoques">' +
+                '<p id="title">' +
+                  'ESTOQUES' +
+                '</p>' +
+              '</div>' +
+            '</div>'
+          );
+        }
+
+        function loadSwiper() {
+          var mySwiper = new Swiper('.swiper-container1', {
+            centeredSlides: true,
+            slidesPerView: 2,
+            initialSlide: initialSlide,
+            watchActiveIndex: true
+          });
+        }
+
+        function barcodeScannerScan() {
+          var scanner = cordova.require("cordova/plugin/BarcodeScanner");
+          scanner.scan(
+                  function(result) {
+                    var codigo = result.text;
+                    if (codigo.length > 0) {
+                      $('input[name=codigo]').val(result.text);
+                      wsGetProduto();
+                    }
+                  },
+                  function(error) {
+                    showDialog("Erro", "Erro ao ler o Código de Barras! Tente novamente", null, null, "Fechar", "hideDialog()");
+                  }
+          );
+        }
+
+        function setAmb(id){
+          $('#ambientes li').attr('class', 'radiooff');
+          $("#"+id).attr('class', 'radioon');
+          sessionStorage.setItem('radioAmb', $("#"+id).attr('id').split('_')[1]);
+        }
+
+        function loadAmb() {
+          var ul = sessionStorage.getItem('ambientes');
+          $('#ambientes').find('ul').remove();
+          $('#ambientes').append(ul);
+          var radioAmb = sessionStorage.getItem('radioAmb');
+          $('#ambientes li').attr('class', 'radiooff');
+          if (radioAmb)
+            $('#ambientes li#amb_' + radioAmb).attr('class', 'radioon');
+          else{
+            $('#ambientes li:first').attr('class', 'radioon');
+            sessionStorage.setItem('radioAmb', "0");
+          }
+
+          $('#ambientes li').each(function(){
+            var id = $(this).attr('id');
+            // ajustando para remover o delay do touch
+            var aux = new FastButton(document.getElementById(id), function(event){
+              setAmb(id);
+            });
+          });
+        }
+
+        /**
+        * wsGetAmbiente
+        * Funcao para executar a requisicao de busca de ambientes
+        */
+        function wsGetAmbiente() {
+          $('#reload').show();
+          window.setTimeout(function() {
+            $('#reload').hide();
+          }, configServerWait);
+          /* executa o ajax */
+          $.ajax({
+            url: configServerUrl + '/getAmbiente.php',
+            type: 'GET',
+            dataType: 'jsonp',
+            data: {
+              'dados': { 'wscallback': 'wsResponseGetAmbiente' }
+            }
+          });
+        }
+
+        /**
+        * wsResponseGetAmbiente
+        * Funcao para tratar o retorno da funcao 'wsGetAmbiente'
+        * @param {json} response
+        */
+        function wsResponseGetAmbiente(response) {
+          $('#reload').remove();
+
+          /* faz o parser do json */
+          response = JSON.parse(response);
+
+          /* verifica se houve erro ou sucesso */
+          if (response.wsstatus == 0) {
+            //$('#ambientes').append('Não há ambientes cadastrados');
+          }
+          else {
+            /* armazena o json com os ambientes para utilizar na tela de orcamento */
+            sessionStorage.setItem('amb', JSON.stringify(response.wsresult));
+
+            /* obtem as informacoes dos ambientes */
+            var ambientes = response.wsresult;
+
+            if (ambientes.length > 0) {
+              var ul = "<ul>";
+              $.each(ambientes, function(i, item) {
+                var id = item.codigo;
+                var nome = item.nome;
+                var li = "<li id='amb_" + id + "'>" + nome + "</li>";
+                ul += li;
+              });
+              ul += "</ul>";
+              sessionStorage.setItem('ambientes', ul);
+              loadAmb();
+            }
+          }
+        }
+
+        $(function() {
+          document.addEventListener("deviceready", onDeviceReady, false);
+
+          // quebra a url para identificar se foi passado algum produto a ser carregado
+          var url = window.location.href;
+          url = url.split('?');
+          if(url[1]){
+            var dados = url[1].split('&');
+            var prd = dados[0].split("=");
+            var indiceImg = dados[1].split("=");
+
+            if(indiceImg[0] == 'indiceImg' && indiceImg[1] > 0)
+              initialSlide = indiceImg[1];
+
+            if(prd[0] == 'codPrd' && prd[1] > 0){
+              $('input[name=codigo]').val(prd[1]);
+              wsGetProduto();
+            }
+          }
+
+          $("#busca input").keypress(function(e) {
+            var tecla = (e.keyCode ? e.keyCode : e.which);
+            if (tecla == 13) {
+              wsGetProduto();
+            }
+          });
+          $("#login input").keypress(function(e) {
+            var tecla = (e.keyCode ? e.keyCode : e.which);
+            if (tecla == 13) {
+              wsLogar();
+            }
+          });
+          verificaConfiguracoes();
+          verificaLogado();
+          loadAmb();
+          loadChangeLog();
+
+          // removendo o delay dos clicks
+          $('#slide-menu').click(function(event) {
+            event.stopPropagation();
+          });
+          var menu_click = new FastButton(document.getElementById('show_menu'), function(event){
+            window.setTimeout(function(){
+              menuShow();
+            }, 100);
+          });
+        });
+    </script>
+  </body>
+</html>

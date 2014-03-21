@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Orçamento BelLar</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- toast -->
+    <div id="toast"></div>
+
+    <!-- popup -->
+    <div id="modal">
+      <h1></h1>
+      <p></p>
+      <input class="hide bradius" type="text" name="generic" value="" />
+      <div id="botoes">
+        <button id="btcancel" type="button" class="bt bradius mask_red">Cancelar</button>
+        <button id="btok" type="button" class="bt bradius mask_gray">Ok</button>
+      </div>
+    </div>
+
+    <div id="geral">
+      <!-- topo fixo da aplicacao -->
+      <div id="topo">
+        <img src="img/logo_cliente.png" />
+        <div id="busca">
+          <strong>Histórico</strong>
+        </div>
+      </div>
+
+      <div id="conteudo">
+        <div id="back_msg">
+          <img src='img/logo_alert.png' alt='logo'/>
+          <p>Não há registros!</p>
+        </div>
+      </div>
+
+      <!-- rodape fixo da aplicacao -->
+      <div id="rodape">
+        <button type="button" class="bt bradius mask_red hide" onclick="exibeDialogDelOrcamentoHist();">Limpar</button>
+        <a class="txt_right show_menu" href="javascript:void(0);" onclick="goToPage('index.html');">
+          <img src="img/ico_back.png" />
+        </a>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="js/libs/jquery-1.9.0/jquery.min.js"></script>
+    <script type="text/javascript" src="js/functions.js"></script>
+    <script type="text/javascript">
+        function clearStorageHist() {
+          var codigo_usuario = getUsuarioCodigo();
+          localStorage.removeItem('historico_usuario_' + codigo_usuario);
+        }
+        function loadStorageHist() {
+          var codigo_usuario = getUsuarioCodigo();
+          /* acessa o hitorico do usuario logado */
+          var historico = JSON.parse(localStorage.getItem('historico_usuario_' + codigo_usuario));
+          var upHistorico = historico;
+
+          if(historico == null)
+            upHistorico = [];
+          else{
+            var ul = $('<ul>');
+            $(ul).addClass('list_hist');
+
+            /* armazena a quantidade de registros que excedem o limite definido nas configurações */
+            var histExcedido = historico.length - configHistQtde;
+            var origem = 'historico';
+
+            $.each(historico, function(i, orcamento) {
+              /* remove os registros mais antigos de acordo com a quantidade excedida.
+               * verifica se eh maior, e também se eh igual, pois se for igual tera que remover um registro
+               * para inserir o orcamento atual */
+              if(histExcedido > 0){
+                upHistorico.shift();
+                histExcedido -= 1;
+              }
+              else{
+                /* monta a lionha do hitorico para exibir na tela */
+                var li = $('<li>');
+                li.attr('onclick', 'exibeDialogSendEmailOrcameto("' + orcamento.codigo + '", "' + origem + '", "' + orcamento.acao + '", "' + orcamento.data + '", "' + orcamento.cliente + '");');
+
+                var span_codigo = $('<span>');
+                span_codigo.addClass('codigo').html(orcamento.codigo);
+
+                var span_data = $('<span>');
+                span_data.addClass('data').html('<strong>' + orcamento.acao + ' - ' + orcamento.data.split("-")[0] + '</strong>');
+                span_data.append("<br>" + orcamento.cliente.substr(0, 30));
+
+                li.append(span_codigo);
+                li.append(span_data);
+
+                $(ul).prepend(li);
+              }
+            });
+            $('#back_msg').hide();
+            $('#conteudo').append(ul);
+            $('.hide').show();
+          }
+        }
+        function exibeDialogDelOrcamentoHist() {
+            showDialog("Histórico", "Deseja excluir o histórico de orçamentos?", "Não", "hideDialog()", "Sim", "delOrcamentoHist()");
+          }
+        function delOrcamentoHist() {
+          clearStorageHist();
+          $('.list_hist').hide();
+          $('.hide').hide();
+          $('#back_msg').show();
+          hideDialog();
+          toast("Histórico excluído com sucesso");
+        }
+        $(function() {
+          $("#login input").keypress(function(e) {
+            var tecla = (e.keyCode ? e.keyCode : e.which);
+            if (tecla == 13) {
+              wsLogar();
+            }
+          });
+          loadStorageHist();
+        });
+    </script>
+  </body>
+</html>
