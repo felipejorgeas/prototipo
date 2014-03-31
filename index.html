@@ -177,6 +177,8 @@
                 var loja_cod = stk.codigo_loja;
                 var loja = stk.nome_loja;
 
+                var topo = '<tr class="header"><td>Loja</td><td>Qtde.</td><td></td></tr>';
+
                 /* monta a lista para exibir as grades e lojas */
                 if (grade_anterior != grade) {
                   var grd = $('<strong>');
@@ -191,12 +193,13 @@
 
                   $(".list_estoques").append(grd);
                   grade_anterior = grade;
-                }
-                else if (!(grade.length > 0) && !topoOk)
-                  topoOk = true;
 
-                var topo = '<tr class="header"><td>Loja</td><td>Qtde.</td><td></td></tr>';
-                $(estoque).append(topo);
+                  $(estoque).append(topo);
+                }
+                else if (!(grade.length > 0) && !topoOk){
+                  topoOk = true;
+                  $(estoque).append(topo);
+                }
 
                 var td_loja = '<td>' + loja_cod + ' - ' + loja + '</td>';
                 var td_qtty = '<td>' + qtty + '</td>';
