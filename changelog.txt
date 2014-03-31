@@ -5,9 +5,11 @@
 ## Autor: Felipe Jorge - EAC Software
 
 
-# v0.4 - 28/03/2014
+# v0.4 - 01/04/2014
 
 - Melhoria na tecnologia de comunição entre aplicativo e servidor.
+
+- Ajustado a exibição das quantidades de estoques disponíveis.
 
 - Ícone do aplicativo remodelado.
 
