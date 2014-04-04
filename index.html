@@ -222,7 +222,7 @@
                 }
 
                 /* gera um hash para identificar este item na lista de estoques */
-                var hash = new Date().getTime();
+                var hash = String(Math.random()).split('.')[1];
 
                 /* insere o botao para quantidade ou apenas informa que o produto ja se encontra no orcamento */
                 if(existsOk)
@@ -290,6 +290,7 @@
 
             $('#conteudo #produto').html(produto.descricao);
             $('#conteudo #codigo').html(produto.codigo);
+            $('#conteudo #preco').html("R$ " + produto.preco);
             $('#conteudo #mult').html(produto.multiplicador / 1000);
 
             /* adiciona a div slide com a imagem da galeria de fotos */
@@ -390,7 +391,7 @@
           }
           else {
             //obtem o multiplicador do produto atual
-            var mult = $(produto).find('multiplicador').text();
+            var mult = produto.multiplicador;
 
             var quoe = qtde / mult; //resultado da divisao
             var rest = qtde % mult; //resto da divisao
@@ -432,6 +433,10 @@
                   '<tr>' +
                     '<td style="width: 10%;"><strong>Multi.:</strong></td>' +
                     '<td style="width: 90%;" id="mult"></td>' +
+                  '</tr>' +
+                  '<tr>' +
+                    '<td style="width: 10%;"><strong>Preço:</strong></td>' +
+                    '<td style="width: 90%;" id="preco"></td>' +
                   '</tr>' +
                 '</table>' +
                 '<div class="list_estoques">' +
