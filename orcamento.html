@@ -168,7 +168,10 @@
             li.append(imagem);
             li.append(strong_produto);
             li.append(span_codigo);
-            li.append(span_grade);
+
+            if(prd.grade.length > 0)
+              li.append(span_grade);
+
             li.append(span_loja);
             li.append(span_quantidade);
             li.append(span_ambiente);
