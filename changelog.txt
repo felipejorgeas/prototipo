@@ -5,6 +5,17 @@
 ## Autor: Felipe Jorge - EAC Software
 
 
+# v0.5 - 04/04/2014
+
+- Correção na consistência do múltiplo ao adicionar um produto no orçamento.
+
+- Corrigido a exibição de grade vazia na tela do orçamento.
+
+- Corrigido marcação de mais de um item da lista ao adicionar um produto no orçamento.
+
+- Adicionado a exibição do preço ao buscar um produto.
+
+
 # v0.4 - 31/03/2014
 
 - Melhoria na tecnologia de comunição entre aplicativo e servidor.
