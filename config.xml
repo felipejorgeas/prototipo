@@ -11,7 +11,13 @@
     <preference name="fullscreen" value="true" />
     <feature name="http://api.phonegap.com/1.0/device" />
     <gap:plugin name="com.phonegap.plugins.barcodescanner" />
-    <icon src="img/iconOld.png" />
-    <gap:splash src="img/splashscreen.jpg" gap:platform="android" />
+    <icon src="img/icon.png" gap:platform="android" gap:density="ldpi" />
+    <icon src="img/icon.png" gap:platform="android" gap:density="mdpi" />
+    <icon src="img/icon.png" gap:platform="android" gap:density="hdpi" />
+    <icon src="img/icon.png" gap:platform="android" gap:density="xhdpi" />
+    <gap:splash src="img/splashscreen.jpg" gap:platform="android" gap:density="ldpi" />
+    <gap:splash src="img/splashscreen.jpg" gap:platform="android" gap:density="mdpi" />
+    <gap:splash src="img/splashscreen.jpg" gap:platform="android" gap:density="hdpi" />
+    <gap:splash src="img/splashscreen.jpg" gap:platform="android" gap:density="xhdpi" />
     <preference name="splash-screen-duration" value="6000"/>
 </widget>
