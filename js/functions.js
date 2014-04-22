@@ -401,7 +401,8 @@ function getUsuarioCodigo() {
 function getUsuarioNome() {
   /* obtem os dados do funcionario na sessao */
   var user = JSON.parse(sessionStorage.getItem('user'));
-  return user.nome;
+  var nome = user.nome.split(" ");
+  return nome[0] + " " + nome[nome.length - 1];
 }
 
 /**
