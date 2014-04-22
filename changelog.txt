@@ -5,6 +5,17 @@
 ## Autor: Felipe Jorge - EAC Software
 
 
+# v0.6 - 23/04/2014
+
+- Habilitado para funcionar com o conceito de ambientes do SACI.
+
+- Ajustes no layout da lista de estoque.
+
+- Corrigido problema ao tentar concluir orçamentos com mais de 25 itens.
+
+- Remodelado alguns itens da interface do aplicativo.
+
+
 # v0.5 - 04/04/2014
 
 - Correção na consistência do múltiplo ao adicionar um produto no orçamento.
