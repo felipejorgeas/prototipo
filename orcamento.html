@@ -59,8 +59,11 @@
       var cod_orcamento = 0;
       var codigo_rm = null;
       var grade_rm = null;
-      var loja_rm = null;
+      var ambiente_rm = null;
       var reg_rm = null;
+      var orcamento = null;
+      var file = null;
+      var limit = 10;
 
       function exibeDialogCliente() {
         showDialog("Cliente", "Informe o nome do cliente:", "Cancelar", "hideDialog()", "Ok", "setCliente()", 1);
@@ -140,7 +143,7 @@
             var button_x = $('<button>');
             button_x.addClass('bt btshort bradius mask_red');
             button_x.attr('type', 'button');
-            button_x.attr('onclick', 'exibeDialogrmProduto("' + prd.codigo + '", "' + prd.grade + '", "' + prd.loja + '", "' + hash + '");');
+            button_x.attr('onclick', 'exibeDialogrmProduto("' + prd.codigo + '", "' + prd.grade + '", "' + prd.ambiente + '", "' + hash + '");');
             button_x.html('X');
 
             var strong_produto = $('<strong>');
@@ -151,9 +154,6 @@
 
             var span_grade = $('<span>');
             span_grade.html('Grade: ' + prd.grade);
-
-            var span_loja = $('<span>');
-            span_loja.html('Loja: ' + prd.loja);
 
             var span_quantidade = $('<span>');
             span_quantidade.html('Qtde: ' + prd.quantidade);
@@ -172,7 +172,6 @@
             if(prd.grade.length > 0)
               li.append(span_grade);
 
-            li.append(span_loja);
             li.append(span_quantidade);
             li.append(span_ambiente);
 
@@ -242,7 +241,7 @@
         }
       }
       function wsSaveOrcamento() {
-        var orcamento = [];
+        orcamento = [];
 
         /* obtem a lista de produtos do orcamento atual */
         var produtoList = JSON.parse(localStorage.getItem('orcamento'));
@@ -268,23 +267,102 @@
               'codigo_produto': prd.codigo,
               'grade_produto': prd.grade,
               'quantidade': prd.quantidade * 1000,
-              'loja': prd.loja,
               'ambiente': prd.ambiente
             };
           });
         }
         showLoading();
-        $.ajax({
-          url: configServerUrl + '/saveOrcamento.php',
-          type: "POST",
-          dataType: "jsonp",
-          data: {
-            'dados': { 'wscallback': 'wsResponseSaveOrcamento',
-                        'orcamento': orcamento
-                      }
-          }
-        });
+        wsSplitOrcamento(1, 0);
       }
+
+      function wsSplitOrcamento(first, last){
+        if(first){
+
+          file = Math.random().toString().split(".")[1];
+
+          $.ajax({
+            url: configServerUrl + '/splitOrcamento.php',
+            type: "POST",
+            dataType: "jsonp",
+            data: {
+              'dados': { 'wscallback': 'wsResponseSplitOrcamento',
+                          'orcamento': {
+                            "inicio": 1,
+                            "file": file,
+                            "codigo": orcamento.codigo,
+                            "funcionario": orcamento.funcionario,
+                            "usuario": orcamento.usuario,
+                            "cliente": orcamento.cliente
+                          }
+                        }
+                    }
+          });
+        }
+
+        else if(last){
+          $.ajax({
+            url: configServerUrl + '/saveOrcamento.php',
+            type: "POST",
+            dataType: "jsonp",
+            data: {
+              'dados': { 'wscallback': 'wsResponseSaveOrcamento',
+                          'orcamento': {
+                            "fim": 1,
+                            "file": file
+                          }
+                        }
+                    }
+          });
+        }
+
+        else{
+          var produtos = [];
+
+          limit = (limit <= orcamento.produtos.length) ? limit : orcamento.produtos.length;
+
+          for(var i = 0; i < limit; i++)
+            produtos[i] = orcamento.produtos.pop();
+
+          $.ajax({
+            url: configServerUrl + '/splitOrcamento.php',
+            type: "POST",
+            dataType: "jsonp",
+            data: {
+              'dados': { 'wscallback': 'wsResponseSplitOrcamento',
+                          'orcamento': {
+                            "file": file,
+                            "produtos": produtos
+                          }
+                        }
+                    }
+          });
+        }
+      }
+
+      function wsResponseSplitOrcamento(response){
+        /* faz o parser do json */
+        response = JSON.parse(response);
+
+        /* em caso de erro */
+        if (response.wsstatus == 0) {
+          var msg = 'Não foi possível inserir ou atualizar o orçamento no SACI!.';
+          var error = response.wserror;
+          if (error.length > 0)
+            msg = error;
+
+          showDialog("Erro", msg, null, null, "Fechar", "hideDialog()");
+        }
+
+        else{
+
+          if(orcamento.produtos.length == 0)
+            wsSplitOrcamento(0, 1);
+
+          else
+            wsSplitOrcamento(0, 0);
+        }
+      }
+
       function wsResponseSaveOrcamento(response) {
         hideDialog();
         hideMask();
@@ -343,10 +421,10 @@
         hideDialog();
         toast("Orçamento excluído com sucesso");
       }
-      function exibeDialogrmProduto(codigo, grade, loja, reg) {
+      function exibeDialogrmProduto(codigo, grade, ambiente, reg) {
         codigo_rm = codigo;
         grade_rm = grade;
-        loja_rm = loja;
+        ambiente_rm = ambiente;
         reg_rm = reg;
         showDialog("Produto", "Deseja excluir este produto do orçamento atual?", "Não", "hideDialog()", "Sim", "rmProduto()");
       }
@@ -363,7 +441,7 @@
           $.each(produtoList, function(i, prd) {
             if(prd){
               /* remove o item do orcamento atual */
-              if (prd.codigo == codigo_rm && prd.grade == grade_rm && prd.loja == loja_rm)
+              if (prd.codigo == codigo_rm && prd.grade == grade_rm && prd.ambiente == ambiente_rm)
                 upProdutoList.splice(i, 1);
             }
           });
