@@ -56,7 +56,7 @@
           <li class="settings"><a href="javascript:void(0);" onclick="goToPage('configuracoes.html');" >Configurações</a></li>
           <li class="close"><a href="javascript:void(0);" onclick="exibeDialogAppClose();" >Fechar</a></li>
         </ul>
-        <p class="tunderline" onclick="showChangeLog();">SACI Orçamento v0.5 - EAC Software</p>
+        <p class="tunderline" onclick="showChangeLog();">SACI Orçamento v0.6 - EAC Software</p>
       </div>
     </nav>
 
@@ -100,9 +100,6 @@
         /* variaveis globais */
         var produto = null;
         var grd = null;
-        var store = null;
-        var storeno = null;
-        var hash = null;
         var heigth = null;
         var initialSlide = 0;
 
@@ -177,7 +174,9 @@
                 var loja_cod = stk.codigo_loja;
                 var loja = stk.nome_loja;
 
-                var topo = '<tr class="header"><td>Loja</td><td>Qtde.</td><td></td></tr>';
+                var td_button = '<td><button type="button" class="bt btshort bradius mask_red" onclick=\'exibeDialogQtty("' + grade + '");\'>+</button></td>';
+
+                var topo = '<tr class="header"><td>Loja</td><td>Qtde.</td>' + td_button + '</tr>';
 
                 /* monta a lista para exibir as grades e lojas */
                 if (grade_anterior != grade) {
@@ -203,34 +202,8 @@
 
                 var td_loja = '<td>' + loja_cod + ' - ' + loja + '</td>';
                 var td_qtty = '<td>' + qtty + '</td>';
-                var td_button = "";
 
-                /* obtem a lista de produtos do orcamento atual */
-                var produtoList = JSON.parse(localStorage.getItem('orcamento'));
-                if(produtoList == null)
-                  produtoList = [];
-
-                var existsOk = false;
-
-                /* percorre a lista de produtos do orcamento atual */
-                if(produtoList.length > 0){
-                  $.each(produtoList, function(i, prd) {
-                    /* verifica se o produto ja esta presente no orcamento atual */
-                    if (prd.codigo == produto.codigo && prd.grade == grade && prd.loja == loja)
-                      existsOk = true;
-                  });
-                }
-
-                /* gera um hash para identificar este item na lista de estoques */
-                var hash = String(Math.random()).split('.')[1];
-
-                /* insere o botao para quantidade ou apenas informa que o produto ja se encontra no orcamento */
-                if(existsOk)
-                  td_button = '<td id="'+hash+'"><img src="img/ico_ok.png" /></td>';
-                else
-                  td_button = '<td id="'+hash+'"><button type="button" class="bt btshort bradius mask_red" onclick=\'exibeDialogQtty("' + loja_cod + '","' + loja + '","' + grade + '","' + hash + '");\'>+</button></td>';
-
-                var tr = '<tr>' + td_loja + td_qtty + td_button + '</tr>';
+                var tr = '<tr>' + td_loja + td_qtty + '<td></td></tr>';
                 $(estoque).append(tr);
               });
             }
@@ -307,17 +280,12 @@
           }
         }
 
-        function exibeDialogQtty(cod_loja, loja, grade, time) {
-          if (cod_loja > 0) {
-            grd = grade;
-            store = loja;
-            storeno = cod_loja;
-            hash = time;
-          }
-          var msg = "";
+        function exibeDialogQtty(grade) {
+          grd = grade;
+          var msg = "<strong>Produto:</strong> " + produto.codigo;
           if (grd.length > 0)
-            msg += "<strong>Grade:</strong> " + grd + " ";
-          msg += '<strong>Loja:</strong> ' + store + "</br>Informe a quantidade desejada:";
+            msg += " - <strong>Grade:</strong> " + grd;
+          msg += "<br>Informe a quantidade desejada:";
           showDialog("Quantidade", msg, "Cancelar", "hideDialog()", "Ok", "verifyMult()", 1);
         }
 
@@ -326,6 +294,10 @@
          */
         function addProduto(qtde) {
           hideDialog();
+
+          var codigo = produto.codigo;
+          var grade = grd;
+          var ambiente = sessionStorage.getItem('radioAmb');
 
           /* obtem o json com a lista de produtos do orcamento atual */
           var produtoList = JSON.parse(localStorage.getItem('orcamento'));
@@ -337,12 +309,11 @@
 
           /* cria um novo bloco com os dados do produto para adicionar ao orcamento atual */
           var newProduto = {
-            'codigo': produto.codigo,
+            'codigo': codigo,
             'descricao': produto.descricao,
-            'grade': grd,
+            'grade': grade,
             'quantidade': qtde,
-            'loja': store,
-            'ambiente': sessionStorage.getItem('radioAmb'),
+            'ambiente': ambiente,
             'img': []
           }
 
@@ -357,14 +328,14 @@
           if(produtoList.length > 0){
             $.each(produtoList, function(i, prd) {
               /* verifica se o produto ja esta presente no orcamento atual */
-              if (prd.codigo == produto.codigo && prd.grade == grd && prd.loja == store)
+              if (prd.codigo == codigo && prd.grade == grade && prd.ambiente == ambiente)
                 existsOk = true;
             });
           }
 
           /* caso o produto ja esteja presente no orcamento atual exibe um aviso */
           if (existsOk) {
-            showDialog("Aviso", "Este produto já foi adicionado no orçamento", null, null, "Fechar", "hideDialog()");
+            showDialog("Aviso", "Este produto já foi adicionado neste ambiente", null, null, "Fechar", "hideDialog()");
           }
           else {
             /* adiciona o produto na lista de produtos */
@@ -372,9 +343,6 @@
 
             /* armazena a lista de produtos atualizada */
             localStorage.setItem('orcamento', JSON.stringify(produtoList));
-
-            /* marca o produto como inserido na lista de estoques */
-            $(".list_estoques").find('td#'+hash).html('<img src="img/ico_ok.png" />');
 
             toast("Produto adicionado no orçamento");
           }
