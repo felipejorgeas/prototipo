@@ -668,7 +668,7 @@ function toast(msg) {
   $('#toast').fadeIn();
   setTimeout(function() {
     $('#toast').fadeOut();
-  }, 2000);
+  }, 3000);
 }
 function loadChangeLog() {
   $("#changelog").load('changelog.txt');
