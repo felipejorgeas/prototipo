@@ -155,6 +155,9 @@
             var span_grade = $('<span>');
             span_grade.html('Grade: ' + prd.grade);
 
+            var span_preco = $('<span>');
+            span_preco.html('Preço unit.: R$ ' + prd.preco);
+
             var span_quantidade = $('<span>');
             span_quantidade.html('Qtde: ' + prd.quantidade);
 
@@ -173,6 +176,7 @@
               li.append(span_grade);
 
             li.append(span_quantidade);
+            li.append(span_preco);
             li.append(span_ambiente);
 
             /* adiciona a linha a lista de itens exibidos na tela */
@@ -263,9 +267,13 @@
           };
 
           $.each(produtoList, function(i, prd) {
+            var preco = prd.preco;
+            preco = preco.replace(/\./g, '').replace(/\,/g, '');
+
             orcamento.produtos[i] = {
               'codigo_produto': prd.codigo,
               'grade_produto': prd.grade,
+              'preco': preco,
               'quantidade': prd.quantidade * 1000,
               'ambiente': prd.ambiente
             };
