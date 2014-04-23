@@ -56,7 +56,7 @@
           <li class="settings"><a href="javascript:void(0);" onclick="goToPage('configuracoes.html');" >Configurações</a></li>
           <li class="close"><a href="javascript:void(0);" onclick="exibeDialogAppClose();" >Fechar</a></li>
         </ul>
-        <p class="tunderline" onclick="showChangeLog();">SACI Orçamento v0.6 - EAC Software</p>
+        <p class="tunderline" onclick="showChangeLog();">SACI Orçamento v0.7 - EAC Software</p>
       </div>
     </nav>
 
@@ -281,7 +281,8 @@
         }
 
         function exibeDialogQtty(grade) {
-          grd = grade;
+          if (grade != null)
+            grd = grade;
           var msg = "<strong>Produto:</strong> " + produto.codigo;
           if (grd.length > 0)
             msg += " - <strong>Grade:</strong> " + grd;
@@ -297,6 +298,7 @@
 
           var codigo = produto.codigo;
           var grade = grd;
+          var preco = produto.preco;
           var ambiente = sessionStorage.getItem('radioAmb');
 
           /* obtem o json com a lista de produtos do orcamento atual */
@@ -312,6 +314,7 @@
             'codigo': codigo,
             'descricao': produto.descricao,
             'grade': grade,
+            'preco': preco,
             'quantidade': qtde,
             'ambiente': ambiente,
             'img': []
