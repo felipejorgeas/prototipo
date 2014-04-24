@@ -349,9 +349,6 @@ function wsSendEmailOrcamento(codigo) {
   });
 }
 function wsResponseSendEmailOrcamento(response) {
-  hideDialog();
-  hideMask();
-
   /* faz o parser do json */
   response = JSON.parse(response);
 
@@ -363,9 +360,6 @@ function wsResponseSendEmailOrcamento(response) {
       msg = error;
     showDialog("Erro", msg, null, null, "Fechar", "hideDialog()");
   }
-  /* em caso de sucesso */
-  else if (response.wsstatus == 1)
-    toast("E-mail enviado com sucesso");
 }
 
 /**
