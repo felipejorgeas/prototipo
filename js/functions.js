@@ -4,6 +4,7 @@ var configHistQtde = null;
 var configOrderSendMail = null;
 var timeWait = null;
 var loadSplashScreen = null;
+var isSendMail = false;
 
 /* carrega as configuracoes locais */
 getConfigs();
@@ -329,6 +330,7 @@ function exibeDialogSendEmailOrcameto(codigo, origem, acao, data, cliente) {
   }
 }
 function wsSendEmailOrcamento(codigo) {
+  isSendMail = true;
   showLoading();
 
   var func_name = getUsuarioNome();
@@ -649,15 +651,26 @@ function hideMaskWhite() {
   }, 300);
 }
 function verifyTimeOut(timeout) {
-  timeWait = window.setTimeout(function() {
-    if ($('#modal img').is(":visible")) {
-      if (isLogado()) {
-        showDialog("Conex&atilde;o", "N&atilde;o houve resposta do servidor! Favor verificar as configura&ccedil;&otilde;es", "Cancelar", "hideDialog()", "Configura&ccedil;&otilde;es", "goToPage('configuracoes.html')");
-      } else {
-        showDialog("Conex&atilde;o", "N&atilde;o houve resposta do servidor! Favor verificar as configura&ccedil;&otilde;es", "Cancelar", "goToPage('index.html')", "Configura&ccedil;&otilde;es", "goToPage('configuracoes.html')");
+  if(isSendMail){
+    timeWait = window.setTimeout(function() {
+      hideDialog();
+      hideMask();
+      toast("O email est&aacute; sendo enviado");
+    }, 10000);
+    isSendMail = false;
+  }
+
+  else{
+    timeWait = window.setTimeout(function() {
+      if ($('#modal img').is(":visible")) {
+        if (isLogado()) {
+          showDialog("Conex&atilde;o", "N&atilde;o houve resposta do servidor! Favor verificar as configura&ccedil;&otilde;es", "Cancelar", "hideDialog()", "Configura&ccedil;&otilde;es", "goToPage('configuracoes.html')");
+        } else {
+          showDialog("Conex&atilde;o", "N&atilde;o houve resposta do servidor! Favor verificar as configura&ccedil;&otilde;es", "Cancelar", "goToPage('index.html')", "Configura&ccedil;&otilde;es", "goToPage('configuracoes.html')");
+        }
       }
-    }
-  }, timeout);
+    }, timeout);
+  }
 }
 function showLoading() {
   showDialog(null, null, null, null, null, null, null, configServerWait, 1);
