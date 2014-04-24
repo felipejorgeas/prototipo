@@ -11,6 +11,8 @@
 
 - Corrigido o 'congelamento' do popup de quantidade ao digitar uma quantidade inválida.
 
+- Melhoria no envio de emails.
+
 
 # v0.6 - 23/04/2014
 
