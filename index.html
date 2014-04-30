@@ -56,7 +56,7 @@
           <li class="settings"><a href="javascript:void(0);" onclick="goToPage('configuracoes.html');" >Configurações</a></li>
           <li class="close"><a href="javascript:void(0);" onclick="exibeDialogAppClose();" >Fechar</a></li>
         </ul>
-        <p class="tunderline" onclick="showChangeLog();">SACI Orçamento v0.7 - EAC Software</p>
+        <p class="tunderline" onclick="showChangeLog();">SACI Orçamento v0.8 - EAC Software</p>
       </div>
     </nav>
 
@@ -102,6 +102,7 @@
         var grd = null;
         var heigth = null;
         var initialSlide = 0;
+        var codigo = 0;
 
         /**
          * Funcao utilizada para buscar as informacoes de um determinado produto
@@ -109,7 +110,7 @@
         function wsGetProduto() {
           /* busca o conteudo do campo 'codigo' */
           var num = $('input[name=codigo]').val();
-          var codigo = new Number(num);
+          codigo = new Number(num);
 
           /* verifica se o campo esta preenchido */
           if (!(codigo > 0)) {
@@ -144,7 +145,7 @@
 
           /* verifica se houve erro ou sucesso */
           if (response.wsstatus == 0) {
-            var msg = 'Produto não encontrado!';
+            var msg = 'Produto <strong>' + codigo + '</strong> não encontrado!';
             var error = response.wserror;
             if (error.length > 0)
               msg = error;
@@ -278,6 +279,7 @@
             heigth = $('.swiper-container').height();
             $('.swiper-container').css({ 'height': '200px' });
           }
+          $('input[name=codigo]').val("");
         }
 
         function exibeDialogQtty(grade) {
