@@ -5,6 +5,13 @@
 ## Autor: Felipe Jorge - EAC Software
 
 
+# v0.8 - 30/04/2014
+
+- Corrigido problema relacionado a nomes de produtos que contém aspas simples e/ou duplas.
+
+- Ao buscar por um produto o campo com o código digitado é limpo para agilizar a digitação de um próximo código de produto.
+
+
 # v0.7 - 24/04/2014
 
 - Adicionado a gravação dos precos dos produtos no orçamento.
