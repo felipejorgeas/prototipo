@@ -56,7 +56,7 @@
           <li class="settings"><a href="javascript:void(0);" onclick="goToPage('configuracoes.html');" >Configurações</a></li>
           <li class="close"><a href="javascript:void(0);" onclick="exibeDialogAppClose();" >Fechar</a></li>
         </ul>
-        <p class="tunderline" onclick="showChangeLog();">SACI Orçamento v0.8 - EAC Software</p>
+        <p class="tunderline" onclick="showChangeLog();">SACI Orçamento v0.9 - EAC Software</p>
       </div>
     </nav>
 
@@ -66,8 +66,9 @@
         <img src="img/logo_cliente.png" />
         <div id="busca">
           <a href="javascript:void(0);" onclick="barcodeScannerScan();"><img class="bradius" src="img/ico_barcode.png" /></a>
-          <input type="text" class="evEnter bradius" name="codigo" placeholder="Cód. Produto" value="" />
+          <input type="text" class="evEnter bradius" name="codigo" placeholder="Produto" value="" />
         </div>
+        <ul id="list_prds"></ul>
       </div>
 
       <!-- conteudo a ser preenchido via javascript ao buscar um novo produto (loadPage) -->
@@ -109,15 +110,26 @@
          */
         function wsGetProduto() {
           /* busca o conteudo do campo 'codigo' */
-          var num = $('input[name=codigo]').val();
-          codigo = new Number(num);
+          var cod = $('input[name=codigo]').val();
 
-          /* verifica se o campo esta preenchido */
-          if (!(codigo > 0)) {
-            showDialog("Aviso", 'Digite um código de produto válido!', null, null, "Fechar", "hideDialog()");
+          if(cod.length == 0){
+            showDialog("Aviso", 'Digite um produto válido!', null, null, "Fechar", "hideDialog()");
           }
-          else {
-            showLoading();
+
+          else{
+            /* searchType
+             * 0 => numero
+             * 1 => texto
+            */
+            var searchType = 0;
+
+            /* verifica se o campo foi preenchido com digito ou texto */
+            var num = new Number(cod);
+            if (!(num > 0))
+              searchType = 1;
+            
+              showLoading();
+
             /* executa o ajax enviando o codigo de barras digitado */
             $.ajax({
               url: configServerUrl + '/getProduto.php',
@@ -125,7 +137,7 @@
               dataType: 'jsonp',
               data: {
                 'dados': { 'wscallback': 'wsResponseGetProduto',
-                            'produto': { 'codigo': codigo }
+                            'produto': { 'codigo': cod, 'search_type': searchType }
                           }
               }
             });
@@ -150,6 +162,43 @@
             if (error.length > 0)
               msg = error;
             showDialog("Produto", msg, null, null, "Fechar", "hideDialog()");
+          }
+
+          /* lista de produtos quando busca pelo nome */
+          else if (response.wsstatus == 2) {
+            var produtos = response.wsresult;
+            var ul = $("#list_prds");
+            ul.html("");
+            $.each(produtos, function(i, prd){
+              var codigo = prd.codigo;
+              var descricao = prd.descricao;
+
+              var li = $("<li>");
+              var strong = $("<strong>");
+              var span = $("<span>");
+
+              strong.html(codigo);
+              span.html(descricao);
+              li.attr("id", codigo).append(strong).append(span);
+
+              ul.append(li);
+            });
+            $("#list_prds li").click(function(){
+              var codigo = $(this).attr("id");
+              $('input[name=codigo]').val(codigo);
+              wsGetProduto();
+            });
+            $("#list_prds").slideDown();
+            $(window).click(function(){
+              $('input[name=codigo]').val("");
+              $("#list_prds").slideUp();
+            });
+            $("#list_prds").click(function(){
+              return false;
+            });
+            $(".bt").click(function(){
+              return false;
+            });
           }
 
           else {
@@ -278,6 +327,7 @@
             initialSlide = 0;
             heigth = $('.swiper-container').height();
             $('.swiper-container').css({ 'height': '200px' });
+            $("#list_prds").slideUp();
           }
           $('input[name=codigo]').val("");
         }
