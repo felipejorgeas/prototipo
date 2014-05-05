@@ -5,6 +5,13 @@
 ## Autor: Felipe Jorge - EAC Software
 
 
+# v0.9 - 06/05/2014
+
+- Adicionado possibilidade de buscar produtos pelo nome.
+
+- Corrigido problema na verificação de permissões para acesso às configurações do aplicativo.
+
+
 # v0.8 - 30/04/2014
 
 - Corrigido problema relacionado a nomes de produtos que contém aspas simples e/ou duplas.
