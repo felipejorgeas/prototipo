@@ -252,6 +252,45 @@ input{
   padding: 2px;
   background: #FFF;
 }
+#list_prds{
+  width: calc(100% - 40px);
+  max-height: 230px;
+  background: #FFF;
+  border: 1px solid #333;
+  border-top: none;
+  overflow-y: auto;
+  display: none;
+  margin: 0 auto;
+
+  box-shadow: 0px 0px 10px #000;
+  -webkit-box-shadow: 0px 0px 10px #000;
+  -moz-box-shadow: 0px 0px 10px #000;
+}
+#list_prds li{
+  height: 35px;
+  padding: 5px;
+  border-top: 1px solid #CF3034;
+  text-align: left;
+  overflow: hidden;
+  display: block;
+}
+#list_prds li:first-child{
+  border-top: none !important;
+}
+#list_prds li strong{
+  min-width: 20%;
+  background: #444;
+  color: #FFF;
+  display: inline-block;
+  text-align: center;
+  padding: 10px 3px;
+  margin-right: 10px;
+}
+#list_prds li span{
+  min-width: 70%;
+  max-width: 70%;
+  line-height: 35px;
+}
 #rodape{
   width: 100%;
   height: 43px;
@@ -746,6 +785,25 @@ and (min-width: 600px){
     width: 150px;
     height: 150px;
   }
+  #list_prds{
+    max-height: 340px;
+  }
+  #list_prds li{
+    height: 40px;
+    padding: 5px;
+  }
+  #list_prds li strong{
+    min-width: 20%;
+    padding: 10px 5px;
+    margin-right: 15px;
+    font-size: 16px;
+  }
+  #list_prds li span{
+    min-width: 70%;
+    max-width: 70%;
+    line-height: 40px;
+    font-size: 16px;
+  }
   #rodape{
     padding-top: 1px;
     height: 50px;
@@ -753,7 +811,6 @@ and (min-width: 600px){
     border-bottom: #CF3034 8px solid;
   }
   #rodape img{
-
     margin: 10px -5px 0 0;
     width: 30px;
     height: 30px;
