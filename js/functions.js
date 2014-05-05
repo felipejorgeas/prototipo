@@ -453,7 +453,7 @@ function verificaPermUsuario() {
    * 2 - gerente ou diretor (permissao avancada para acessar o aplicativo e configuracoes)
    */
   switch (permissao) {
-    case 2:
+    case "2":
       $('#slide-menu #botoes .settings').show();
   }
 }
