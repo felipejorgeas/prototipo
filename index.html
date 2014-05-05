@@ -127,7 +127,7 @@
             var num = new Number(cod);
             if (!(num > 0))
               searchType = 1;
-            
+
               showLoading();
 
             /* executa o ajax enviando o codigo de barras digitado */
@@ -194,6 +194,9 @@
               $("#list_prds").slideUp();
             });
             $("#list_prds").click(function(){
+              return false;
+            });
+            $("input[name=codigo]").click(function(){
               return false;
             });
             $(".bt").click(function(){
