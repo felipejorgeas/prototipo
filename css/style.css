@@ -643,6 +643,270 @@ input{
 /* Smartphones (portrait and landscape) ----------- */
 @media only screen
 and (min-width: 600px){
+  /* Styles */
+  #topo{
+    height: 50px;
+  }
+  #topo button{
+    margin: 0 5px 0 0;
+  }
+  #topo img{
+    width: 205px;
+    height: 50px;
+  }
+  #topo #busca{
+    margin-top: 5px;
+  }
+  #topo #busca img{
+    width: 40px;
+    height: 40px;
+  }
+  #topo #busca input{
+    font-size: 18px;
+    width: 200px;
+    height: 38px;
+    padding: 0 5px 0 35px;
+    background: url('../img/ico_lupa.png') 5px 5px  no-repeat #FFF;
+  }
+  #topo #busca strong{
+    line-height: 40px;
+    font-size: 22px;
+  }
+  #produto{
+    font-size: 36px;
+  }
+  .bt{
+    width:180px;
+    height: 42px;
+    font-size: 18px;
+  }
+  .btshort{
+    width: 42px;
+    height: 42px;
+  }
+  #conteudo #conteudo_cli{
+    top: 47px;
+  }
+  #conteudo #conteudo_cli #cliente{
+    font-size: 18px;
+  }
+  #conteudo .list{
+    margin: 60px auto 70px;
+  }
+  #conteudo .list li{
+    margin-top: 10px;
+    padding-bottom: 10px;
+  }
+  #conteudo .list li button{
+    right: 10px;
+  }
+  #conteudo .list li img{
+    width: 200px;
+    height: 150px;
+    margin: 0 10px;
+    padding: 5px;
+    border: 1px solid #444;
+  }
+  #conteudo .list li span{
+    font-size: 18px;
+  }
+  #conteudo .list li .produto{
+    font-size: 22px;
+    margin-right: 60px;
+  }
+  #conteudo .list_hist{
+    margin: 60px auto 70px;
+  }
+  #conteudo .list_hist li{
+    margin-top: 10px;
+    padding-bottom: 10px;
+  }
+  #conteudo .list_hist li div{
+    width: 440px;
+    margin: 0 auto;
+  }
+  #conteudo .list_hist li .codigo{
+    width: 140px;
+    font-size: 16px;
+  }
+  #conteudo .list_hist li .data{
+    font-size: 16px;
+    margin-left: 10px;
+    top: -10px;
+    width: 250px;
+  }
+  #conteudo .list_hist li .data strong{
+    font-size: 16px;
+  }
+  #conteudo .list_estoques{
+    margin-top: 10px;
+    padding-bottom: 70px;
+  }
+  #conteudo .list_estoques #title{
+    padding: 12px;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  #conteudo .list_estoques #title button{
+    margin-top: -9px;
+  }
+  #conteudo .list_estoques .grade{
+    padding: 12px;
+    font-size: 18px;
+    color: #CF3034;
+    display: block;
+  }
+  #conteudo .list_estoques table{
+    border-collapse: collapse;
+    width: 100%;
+  }
+  #conteudo .list_estoques table .header{
+    background: #333;
+    color: #FFF;
+    font-weight: bold;
+  }
+  #conteudo .list_estoques table tr td{
+    width: 50%;
+    padding: 10px;
+    border: 1px solid #CCC;
+    font-size: 18px;
+  }
+  #conteudo .list_estoques table tr td img{
+    margin: 0 auto;
+    width: 40px;
+    height: 40px;
+  }
+  #conteudo #back_msg{
+    margin-top: -110px;
+  }
+  #conteudo #back_msg p{
+    font-size: 26px;
+  }
+  #conteudo #back_msg img{
+    width: 150px;
+    height: 150px;
+  }
+  #list_prds{
+    top: 50px;
+    max-height: 440px;
+  }
+  #list_prds li{
+    height: 40px;
+    padding: 5px;
+  }
+  #list_prds li strong{
+    min-width: 20%;
+    padding: 10px 5px;
+    margin-right: 15px;
+    font-size: 16px;
+  }
+  #list_prds li span{
+    min-width: 70%;
+    max-width: 70%;
+    line-height: 40px;
+    font-size: 16px;
+  }
+  #rodape{
+    padding-top: 1px;
+    height: 50px;
+    line-height: 50px;
+    border-bottom: #CF3034 8px solid;
+  }
+  #rodape img{
+    margin: 10px -5px 0 0;
+    width: 30px;
+    height: 30px;
+  }
+  #login{
+    width: 300px;
+    margin: -140px 0 0 -150px;
+  }
+  #login img{
+    width: 205px;
+    height: 50px;
+  }
+  #login input{
+    width: 288px;
+    margin: 0 0 10px;
+    height: 42px;
+    font-size: 18px;
+  }
+  .tabs span {
+    width: 200px;
+    height: 40px;
+    line-height: 40px;
+  }
+  .tabs span.active img{
+    left: 80px;
+    bottom: -8px;
+  }
+  #dados{
+    height: 200px;
+    margin-bottom: 30px;
+  }
+  #dados table tr td{
+    font-size: 20px;
+  }
+  #dados table tr td strong{
+    font-size: 20px;
+  }
+  #conteudo .info #botoes{
+    width: 130px;
+  }
+  #conteudo .info #botoes button{
+    margin: 40px auto 10px;
+  }
+  .mask_like{
+    width: 100px;
+    height: 100px;
+  }
+  .swiper-container {
+    border-top: 0;
+  }
+  .content-slide table{
+    font-size: 14px;
+  }
+  .content-slide table tr td{
+    padding-right: 10px;
+  }
+  .device {
+    margin: 60px auto 30px;
+    height: 400px;
+  }
+  .device .swiper-container1 {
+    height: 400px;
+    padding-top: 30px;
+  }
+  .device .swiper-container1 .swiper-slide {
+    height: 70%;
+    margin-top: 10px;
+  }
+  .device .swiper-container1 .swiper-slide img{
+    margin-top: 46px;
+    height: 70%;
+  }
+  #configs{
+    margin-top: 10px;
+    padding-bottom: 70px;
+  }
+  #configs strong{
+    line-height: 60px;
+    padding-left: 15px;
+    font-size: 18px;
+  }
+  #configs ul {
+    width: 95%;
+  }
+  #configs ul li {
+    margin: 0 15px;
+    line-height: 60px;
+  }
+  #configs ul li label{
+    font-size: 16px;
+  }
+  #changelog{
+    font-size: 16px !important;
+  }
 }
 
 /*
