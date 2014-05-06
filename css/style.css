@@ -253,7 +253,7 @@ input{
   background: #FFF;
 }
 #list_prds{
-  width: calc(100% - 40px);
+  width: 90%;
   max-height: 230px;
   background: #FFF;
   border: 1px solid #333;
